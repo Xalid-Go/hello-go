@@ -1,18 +1,21 @@
 package main
 
-import "sync"
+import (
+	"sync"
+	"sync/atomic"
+)
 
-// Count запускает n горутин, каждая увеличивает общий счётчик.
 func Count(n int) int {
 	var wg sync.WaitGroup
-	total := 0
+	var total atomic.Int64
+
 	for range n {
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			total++
+			total.Add(1)
 		}()
 	}
 	wg.Wait()
-	return total
+	return int(total.Load())
 }
